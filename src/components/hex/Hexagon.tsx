@@ -1,7 +1,13 @@
 "use client";
 /** @jsxImportSource @emotion/react */
 
-import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type MouseEventHandler,
+  type ReactNode,
+} from "react";
 import {
   downTriangleStyle,
   hexagonContentStyle,
@@ -16,6 +22,7 @@ export interface HexagonProps {
   children?: ReactNode;
   className?: string;
   style?: CSSProperties;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
 export const Hexagon: React.FC<HexagonProps> = ({
@@ -24,6 +31,7 @@ export const Hexagon: React.FC<HexagonProps> = ({
   children,
   className,
   style,
+  onClick,
 }) => {
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -39,9 +47,14 @@ export const Hexagon: React.FC<HexagonProps> = ({
     <div
       ref={rootRef}
       data-hex
+      data-on={isOn ? "true" : "false"}
       css={hexagonStyle}
       className={className}
-      style={style}
+      style={{
+        ...style,
+        cursor: onClick ? "pointer" : style?.cursor,
+      }}
+      onClick={onClick}
     >
       <div css={hexagonContentStyle}>
         {children ?? (
