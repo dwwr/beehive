@@ -1,0 +1,12 @@
+---
+description: Do not add code comments unless the user explicitly asks
+alwaysApply: true
+---
+
+# No comments
+
+Do not write comments in code (`//`, `/* */`, `#`, `<!-- -->`, JSDoc/docstrings, or inline annotations).
+
+Prefer clear names and structure over explaining with comments. Do not add comments when editing existing files either—leave pre-existing comments alone unless the user asks to change them.
+
+Only add comments when the user explicitly requests them in the chat.
