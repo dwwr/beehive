@@ -1,0 +1,22 @@
+---
+description: Match existing beehive code style and patterns; do not invent new conventions
+alwaysApply: true
+---
+
+# Follow established code style
+
+Match the patterns already in this repo. Prefer copying nearby files over inventing new structure, naming, or styling approaches.
+
+## Stack patterns
+
+- Hex UI: Emotion (`@emotion/react`), `/** @jsxImportSource @emotion/react */`, co-located `styles.ts` / `*Styles.ts`
+- App shell: thin Tailwind utility classes only; do not restyle hex primitives with Tailwind
+- Components: client components when using hooks or the Emotion `css` prop; `"use client"` first line
+- Composition: build on `Hexagon` / `HexGrid` / `useHexagonPaint` rather than forking clip-path or paint logic
+- Stories: colocated `*.stories.tsx` next to the component, `@storybook/nextjs-vite` Meta/StoryObj
+
+## Editing habits
+
+- Reuse existing names, file layout, and export style from sibling modules
+- Keep diffs focused; do not drive-by refactor unrelated code
+- When unsure, mirror `src/components/hex/` and `src/components/readout-2/` as the reference
