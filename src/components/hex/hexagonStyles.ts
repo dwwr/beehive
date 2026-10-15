@@ -70,7 +70,7 @@ export const hexagonContentStyle = css`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   gap: 0.45rem;
   width: 100%;
   height: 100%;

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Readout2 } from "@/components/readout-2/Readout2";
+import { HexSurface } from "@/components/hex";
 
 export default function Home() {
   return (
-    <main className="flex min-h-full flex-1 flex-col bg-black text-white">
+    <main className="flex h-full min-h-0 flex-1 flex-col bg-black text-white">
       <header className="flex items-baseline justify-between gap-4 px-6 py-5">
         <div>
           <h1 className="font-[family-name:var(--font-geist-sans)] text-2xl tracking-tight">
@@ -21,7 +21,7 @@ export default function Home() {
         </Link>
       </header>
       <div className="min-h-0 flex-1">
-        <Readout2 text="Emergency" numberOfHexagons={80} outlineOffHexagons />
+        <HexSurface renderInner={() => <HexSurface hexSize={28} />} />
       </div>
     </main>
   );
