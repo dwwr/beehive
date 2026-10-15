@@ -18,15 +18,17 @@ import { Hexagon } from "./Hexagon";
 import {
   coverageCells,
   DEFAULT_HEX_SIZE,
+  hexPitches,
   type HexCell,
 } from "./coords";
 import {
+  surfaceInnerScaleStyle,
   surfaceInnerStyle,
   surfaceLayerStyle,
   surfaceRootStyle,
 } from "./hexSurfaceStyles";
 import { mainStyle } from "./styles";
-import { useHexZoom } from "./useHexZoom";
+import { useHexZoom, ZOOM_FILL, ZOOM_MS } from "./useHexZoom";
 
 const HexSurfaceNesting = createContext(false);
 
@@ -52,9 +54,11 @@ export const HexSurface: React.FC<HexSurfaceProps> = ({
   const layerRef = useRef<HTMLDivElement>(null);
   const selectedIdRef = useRef<string | null>(null);
   const zoomedRef = useRef(false);
+  const innerTimerRef = useRef<number>(0);
   const [bounds, setBounds] = useState({ width: 0, height: 0 });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [innerOpen, setInnerOpen] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
   const { zoomTo, zoomOut } = useHexZoom(layerRef, surfaceRef);
 
   useLayoutEffect(() => {
@@ -79,8 +83,10 @@ export const HexSurface: React.FC<HexSurfaceProps> = ({
   const closeZoom = useCallback(() => {
     if (!zoomedRef.current) return;
     zoomedRef.current = false;
+    window.clearTimeout(innerTimerRef.current);
+    setInnerOpen(false);
+    setZoomScale(1);
     void zoomOut().then(() => {
-      setInnerOpen(false);
       selectedIdRef.current = null;
       setSelectedId(null);
     });
@@ -112,11 +118,28 @@ export const HexSurface: React.FC<HexSurfaceProps> = ({
 
       selectedIdRef.current = cell.id;
       setSelectedId(cell.id);
-      setInnerOpen(true);
+      setInnerOpen(false);
+      setZoomScale(1);
       zoomedRef.current = true;
       void zoomTo(cell.cx, cell.cy, hexSize);
+
+      const surface = surfaceRef.current;
+      const { width: hexW, height: hexH } = hexPitches(hexSize);
+      const scale =
+        surface && hexW > 0 && hexH > 0
+          ? Math.min(surface.clientWidth / hexW, surface.clientHeight / hexH) *
+            ZOOM_FILL
+          : 1;
+
+      window.clearTimeout(innerTimerRef.current);
+      innerTimerRef.current = window.setTimeout(() => {
+        if (!zoomedRef.current || selectedIdRef.current !== cell.id) return;
+        if (!renderInner) return;
+        setZoomScale(scale);
+        setInnerOpen(true);
+      }, ZOOM_MS);
     },
-    [closeZoom, hexSize, nested, onHexClick, zoomTo],
+    [closeZoom, hexSize, nested, onHexClick, renderInner, zoomTo],
   );
 
   const varStyle = {
@@ -137,16 +160,31 @@ export const HexSurface: React.FC<HexSurfaceProps> = ({
         <div ref={layerRef} css={surfaceLayerStyle}>
           {cells.map((cell) => {
             const selected = cell.id === selectedId;
-            const inner =
-              selected && innerOpen && renderInner ? (
-                <div css={surfaceInnerStyle}>{renderInner(cell)}</div>
-              ) : (
-                false
-              );
+            const showInner = selected && innerOpen && renderInner;
+            const inner = showInner ? (
+              <div
+                css={surfaceInnerStyle}
+                data-hex-inner
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div
+                  css={surfaceInnerScaleStyle}
+                  style={
+                    { "--hex-zoom": String(zoomScale) } as CSSProperties
+                  }
+                >
+                  {renderInner(cell)}
+                </div>
+              </div>
+            ) : (
+              false
+            );
             return (
               <Hexagon
                 key={cell.id}
-                isOn={selected}
+                isOn={selected && !renderInner}
+                plain={selected && Boolean(renderInner)}
+                detail={Boolean(showInner)}
                 onClick={(event) => handleHexClick(cell, event)}
                 style={{
                   position: "absolute",

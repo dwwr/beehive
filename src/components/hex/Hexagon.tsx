@@ -18,6 +18,8 @@ import {
 
 export interface HexagonProps {
   isOn?: boolean;
+  plain?: boolean;
+  detail?: boolean;
   text?: string;
   children?: ReactNode;
   className?: string;
@@ -27,6 +29,8 @@ export interface HexagonProps {
 
 export const Hexagon: React.FC<HexagonProps> = ({
   isOn = false,
+  plain = false,
+  detail = false,
   text,
   children,
   className,
@@ -48,6 +52,8 @@ export const Hexagon: React.FC<HexagonProps> = ({
       ref={rootRef}
       data-hex
       data-on={isOn ? "true" : "false"}
+      {...(plain ? { "data-hex-plain": true } : {})}
+      {...(detail ? { "data-hex-detail": true } : {})}
       css={hexagonStyle}
       className={className}
       style={{
